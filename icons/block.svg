@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="20" height="20">
+  <!-- Shield fill -->
+  <path d="M10,1 L3,4 L3,9.5 C3,13.9 5.9,17.8 10,19 C14.1,17.8 17,13.9 17,9.5 L17,4 Z"
+        fill="var(--accent-soft, rgba(74,144,217,0.12))"/>
+  <!-- Shield border -->
+  <path d="M10,1 L3,4 L3,9.5 C3,13.9 5.9,17.8 10,19 C14.1,17.8 17,13.9 17,9.5 L17,4 Z"
+        fill="none" stroke="var(--accent, #4a90d9)" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- Lock shackle -->
+  <path d="M8.5,10 L8.5,8.2 C8.5,7 9.2,6 10,6 C10.8,6 11.5,7 11.5,8.2 L11.5,10"
+        fill="none" stroke="var(--accent, #4a90d9)" stroke-width="1.3" stroke-linecap="round"/>
+  <!-- Lock body -->
+  <rect x="7.5" y="10" width="5" height="4" rx="0.8"
+        fill="var(--accent, #4a90d9)"/>
+</svg>

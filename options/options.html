@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPN Privacy Guard — Settings</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+
+  <body>
+    <div class="container">
+
+      <header>
+        <h1>
+          <svg class="header-icon" viewBox="0 0 20 20" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,1 L3,4 L3,9.5 C3,13.9 5.9,17.8 10,19 C14.1,17.8 17,13.9 17,9.5 L17,4 Z"
+                  fill="var(--accent-soft, rgba(74,144,217,0.12))"/>
+            <path d="M10,1 L3,4 L3,9.5 C3,13.9 5.9,17.8 10,19 C14.1,17.8 17,13.9 17,9.5 L17,4 Z"
+                  fill="none" stroke="var(--accent, #4a90d9)" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M8.5,10 L8.5,8.2 C8.5,7 9.2,6 10,6 C10.8,6 11.5,7 11.5,8.2 L11.5,10"
+                  fill="none" stroke="var(--accent, #4a90d9)" stroke-width="1.3" stroke-linecap="round"/>
+            <rect x="7.5" y="10" width="5" height="4" rx="0.8" fill="var(--accent, #4a90d9)"/>
+          </svg>
+          VPN Privacy Guard
+        </h1>
+        <p class="subtitle">Block sites unless your VPN is active</p>
+      </header>
+
+      <!-- ── Blocked Domains ── -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Protected Domains</h2>
+          <div class="badge-group">
+            <span class="badge" id="domain-count" title="VPN required">0</span>
+            <span class="badge badge--reverse" id="reverse-domain-count" title="VPN blocked">0</span>
+          </div>
+        </div>
+
+        <p class="hint">
+          One domain per line. Subdomains are included automatically. <code>!</code> prefix inverts requirement.<br>
+          Do <strong>not</strong> add <code>ip.me</code> or <code>me</code> to this list.
+        </p>
+
+        <textarea
+          id="blocked-hosts"
+          rows="8"
+          placeholder="example.com&#10;example.org"
+          spellcheck="false"
+          autocomplete="off"
+        ></textarea>
+
+        <label class="toggle">
+          <input type="checkbox" id="force-incognito">
+          <span class="toggle-slider"></span>
+          <span class="toggle-label">
+            Force incognito mode on these sites
+            <span class="hint">Requires the <em>"Run in Private Windows"</em> permission.</span>
+          </span>
+        </label>
+      </section>
+
+      <!-- ── Mode of Operation ── -->
+      <section class="card">
+        <div class="card-header">
+          <h2>VPN Detection Method</h2>
+        </div>
+
+        <label class="radio-card">
+          <input type="radio" id="localservice" name="modeOfOperation" value="LOCALSERVICE">
+          <span class="radio-indicator"></span>
+          <span class="radio-content">
+            <strong>Local service</strong>
+            <span class="hint">
+              Most robust. Detects VPN interface changes instantly without caching. Linux only.
+              <span class="tooltip-wrap">
+                <span class="tooltip-trigger">Setup guide</span>
+                <span class="tooltip-popup">
+                  <strong>Local Service Setup (Linux)</strong>
+
+                  <p>1. Create the helper script:</p>
+                  <div class="code-block">
+                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                      <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </svg>
+                      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                    <pre>mkdir -p ~/.local/lib/vpn-check
+
+cat &gt; ~/.local/lib/vpn-check/vpn-service.sh &lt;&lt; 'EOF'
+#!/bin/bash
+VPN_INTERFACES="tun0 tun1 wg0 wg1 ppp0 nordlynx mullvad"
+
+check_vpn() {
+  for iface in $VPN_INTERFACES; do
+    if ip link show "$iface" &amp;&gt;/dev/null; then
+      echo "status=UP"; return
+    fi
+  done
+  echo "status=DOWN"
+}
+
+while true; do
+  read -r request
+  while read -r header; do
+    [[ -z "$header" || "$header" == $'\r' ]] &amp;&amp; break
+  done
+  response=$(check_vpn)
+  echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${#response}\r\nConnection: close\r\n\r\n$response"
+done
+EOF
+
+chmod +x ~/.local/lib/vpn-check/vpn-service.sh</pre>
+                  </div>
+
+                  <p>2. Create systemd user service:</p>
+                  <div class="code-block">
+                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                      <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </svg>
+                      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                    <pre>mkdir -p ~/.config/systemd/user
+
+cat &gt; ~/.config/systemd/user/vpn-check.service &lt;&lt; EOF
+[Unit]
+Description=VPN Check Helper Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/ncat -lk -p 4567 -c %h/.local/lib/vpn-check/vpn-service.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable --now vpn-check.service</pre>
+                  </div>
+
+                  <p>3. Install dependencies:</p>
+                  <div class="code-block">
+                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                      <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </svg>
+                      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                    <pre># Debian/Ubuntu
+sudo apt install nmap iproute2
+
+# Fedora
+sudo dnf install nmap iproute
+
+# Arch
+sudo pacman -S nmap iproute2</pre>
+                  </div>
+
+                  <p>4. Find your VPN interface (with VPN connected):</p>
+                  <div class="code-block">
+                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                      <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </svg>
+                      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                    <pre>ip link show | grep -E "tun|wg|ppp|nordlynx|mullvad"</pre>
+                  </div>
+
+                  <p class="hint">Add your interface to <code>VPN_INTERFACES</code> in the script if not listed.</p>
+
+                  <p>5. Test:</p>
+                  <div class="code-block">
+                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                      <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </svg>
+                      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                    <pre>curl http://localhost:4567/getvpnstatus</pre>
+                  </div>
+
+                  <p class="hint">Should return <code>status=UP</code> or <code>status=DOWN</code>.</p>
+                </span>
+              </span>
+            </span>
+          </span>
+        </label>
+
+        <label class="radio-card">
+          <input type="radio" id="externalcheck" name="modeOfOperation" value="EXTERNALCHECK" checked>
+          <span class="radio-indicator"></span>
+          <span class="radio-content">
+            <strong>External IP check</strong>
+            <span class="hint">
+              Verifies via <code>ip.me</code> that your public IP is <em>not</em> in your home country.
+            </span>
+            <span class="inline-field">
+              <label for="country-code">Home country code</label>
+              <input
+                type="text"
+                id="country-code"
+                maxlength="2"
+                size="3"
+                placeholder="US"
+                spellcheck="false"
+                autocomplete="off"
+                pattern="[A-Za-z]{2}"
+                title="Two-letter ISO country code, e.g. US, DE, JP"
+              >
+            </span>
+          </span>
+        </label>
+      </section>
+
+      <!-- ── Debugging ── -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Debugging</h2>
+        </div>
+
+        <div class="radio-group-inline">
+          <label class="radio-pill">
+            <input type="radio" id="on" name="debugging" value="ON">
+            <span class="pill-label">On</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" id="off" name="debugging" value="OFF" checked>
+            <span class="pill-label">Off</span>
+          </label>
+        </div>
+        <p class="hint">When enabled, detailed logs are written to the browser console.</p>
+        <button id="clear-cache" class="btn">Re-check VPN now</button>
+        <p class="hint">Clears the cached VPN status and forces a fresh check.</p>
+      </section>
+
+      <footer>
+        <p>* Settings are saved automatically.</p>
+      </footer>
+
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

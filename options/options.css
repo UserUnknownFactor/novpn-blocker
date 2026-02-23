@@ -1,0 +1,636 @@
+﻿/* ────────────────────────────────────────────────────────
+   Design tokens — light & dark
+   ──────────────────────────────────────────────────────── */
+
+:root {
+    --bg: #f2f3f5;
+    --surface: #ffffff;
+    --surface-hover: #f8f9fa;
+    --border: #dfe1e5;
+    --border-focus: #4a90d9;
+    --text: #1d1d1f;
+    --text-secondary: #6b7280;
+    --accent: #4a90d9;
+    --accent-soft: rgba(74, 144, 217, 0.12);
+    --danger: #e74c3c;
+    --code-bg: #f0f1f3;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.08);
+    --radius: 8px;
+    --radius-sm: 5px;
+    --transition: 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #23242a;
+        --surface: #2c2d33;
+        --surface-hover: #35363d;
+        --border: #3e4048;
+        --border-focus: #5b9bd5;
+        --text: #e4e5e7;
+        --text-secondary: #9ca3af;
+        --accent: #5b9bd5;
+        --accent-soft: rgba(91, 155, 213, 0.15);
+        --code-bg: #2c2d33;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* ────────────────────────────────────────────────────────
+   Reset & base
+   ──────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    background: transparent;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code {
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+/* ────────────────────────────────────────────────────────
+   Layout
+   ──────────────────────────────────────────────────────── */
+
+.container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 8px 12px 16px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+header h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.header-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    margin-top: 2px;
+    font-size: 0.88rem;
+}
+
+footer {
+    text-align: center;
+    margin-top: 8px;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+/* ────────────────────────────────────────────────────────
+   Cards
+   ──────────────────────────────────────────────────────── */
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+    transition: box-shadow var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.card-header h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* ────────────────────────────────────────────────────────
+   Badge (domain counter)
+   ──────────────────────────────────────────────────────── */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 99px;
+}
+
+.badge-group {
+    display: flex;
+    gap: 6px;
+}
+
+.badge--reverse {
+    background: rgba(231, 76, 60, 0.12);
+    color: #e74c3c;
+}
+
+@media (prefers-color-scheme: dark) {
+    .badge--reverse {
+        background: rgba(231, 76, 60, 0.18);
+        color: #ff6b5b;
+    }
+}
+
+/* ────────────────────────────────────────────────────────
+   Hints / helper text
+   ──────────────────────────────────────────────────────── */
+
+.hint {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    margin-top: 2px;
+}
+
+p.hint {
+    margin-bottom: 8px;
+}
+
+/* ────────────────────────────────────────────────────────
+   Textarea
+   ──────────────────────────────────────────────────────── */
+
+textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+/* ────────────────────────────────────────────────────────
+   Toggle switch (checkbox)
+   ──────────────────────────────────────────────────────── */
+
+.toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: relative;
+    flex-shrink: 0;
+    width: 38px;
+    height: 22px;
+    background: var(--border);
+    border-radius: 99px;
+    transition: background var(--transition);
+    margin-top: 1px;
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: var(--surface);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform var(--transition);
+}
+
+.toggle input:checked+.toggle-slider {
+    background: var(--accent);
+}
+
+.toggle input:checked+.toggle-slider::after {
+    transform: translateX(16px);
+}
+
+.toggle input:focus-visible+.toggle-slider {
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.toggle-label {
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.toggle-label strong {
+    font-weight: 600;
+}
+
+/* ────────────────────────────────────────────────────────
+   Radio cards (mode of operation)
+   ──────────────────────────────────────────────────────── */
+
+.radio-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition), border-color var(--transition);
+    margin-bottom: 6px;
+}
+
+.radio-card:last-of-type {
+    margin-bottom: 0;
+}
+
+.radio-card:hover {
+    background: var(--surface-hover);
+}
+
+.radio-card:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.radio-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.radio-indicator {
+    position: relative;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    transition: border-color var(--transition);
+}
+
+.radio-indicator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform var(--transition);
+}
+
+.radio-card input:checked~.radio-indicator {
+    border-color: var(--accent);
+}
+
+.radio-card input:checked~.radio-indicator::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.radio-card input:focus-visible~.radio-indicator {
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.radio-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-size: 0.88rem;
+}
+
+.radio-content strong {
+    font-weight: 600;
+}
+
+/* ────────────────────────────────────────────────────────
+   Inline field (country-code inside radio card)
+   ──────────────────────────────────────────────────────── */
+
+.inline-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 0.85rem;
+}
+
+.inline-field label {
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.inline-field input[type="text"] {
+    width: 48px;
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    font-family: "SF Mono", "Fira Code", monospace;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 1px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.inline-field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ────────────────────────────────────────────────────────
+   Radio pills (debug on / off)
+   ──────────────────────────────────────────────────────── */
+
+.radio-group-inline {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.radio-pill {
+    cursor: pointer;
+    user-select: none;
+}
+
+.radio-pill input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.pill-label {
+    display: block;
+    padding: 5px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: background var(--transition), color var(--transition);
+}
+
+.radio-pill:not(:last-child) .pill-label {
+    border-right: 1px solid var(--border);
+}
+
+.radio-pill input:checked+.pill-label {
+    background: var(--accent);
+    color: #fff;
+}
+
+.radio-pill input:focus-visible+.pill-label {
+    box-shadow: inset 0 0 0 2px var(--accent-soft);
+}
+
+/* ────────────────────────────────────────────────────────
+   Responsive tweaks
+   ──────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .container {
+        padding: 6px 8px 12px;
+    }
+
+    .card {
+        padding: 10px 12px;
+    }
+
+    header h1 {
+        font-size: 1.15rem;
+    }
+}
+
+/* ────────────────────────────────────────────────────────
+   Tooltip
+   ──────────────────────────────────────────────────────── */
+
+.tooltip-wrap {
+    position: relative;
+    display: inline;
+}
+
+.tooltip-trigger {
+    color: var(--accent);
+    border-bottom: 1px dashed var(--accent);
+    cursor: help;
+}
+
+.tooltip-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(480px, 92vw);
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 16px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+}
+
+.tooltip-wrap:hover .tooltip-popup,
+.tooltip-wrap:focus-within .tooltip-popup {
+    display: block;
+}
+
+.tooltip-popup>strong:first-child {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+}
+
+.tooltip-popup>p {
+    margin: 14px 0 6px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.tooltip-popup>p:first-of-type {
+    margin-top: 0;
+}
+
+/* ────────────────────────────────────────────────────────
+   Code blocks with copy button
+   ──────────────────────────────────────────────────────── */
+
+.code-block {
+    position: relative;
+    margin: 0 0 6px;
+}
+
+.code-block pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    padding-right: 40px;
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0;
+    color: var(--text);
+}
+
+.copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity var(--transition), background var(--transition);
+}
+
+.copy-btn:hover {
+    opacity: 1;
+    background: var(--surface-hover);
+}
+
+.copy-btn svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text);
+}
+
+.copy-btn .check-icon {
+    display: none;
+    color: var(--accent);
+}
+
+.copy-btn.copied .copy-icon {
+    display: none;
+}
+
+.copy-btn.copied .check-icon {
+    display: block;
+}
+
+.copy-btn.copied {
+    opacity: 1;
+    border-color: var(--accent);
+}
+
+.btn {
+    padding: 8px 16px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition), opacity var(--transition);
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn:active {
+    opacity: 0.8;
+}
