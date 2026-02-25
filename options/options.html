@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VPN Privacy Guard — Settings</title>
     <link rel="stylesheet" href="options.css">
+    <link rel="stylesheet" href="options.i18n.css">
   </head>
 
   <body>
@@ -21,30 +22,26 @@
                   fill="none" stroke="var(--accent, #4a90d9)" stroke-width="1.3" stroke-linecap="round"/>
             <rect x="7.5" y="10" width="5" height="4" rx="0.8" fill="var(--accent, #4a90d9)"/>
           </svg>
-          VPN Privacy Guard
+          <span data-i18n="header-title"></span>
         </h1>
-        <p class="subtitle">Block sites unless your VPN is active</p>
+        <p class="subtitle" data-i18n="header-subtitle"></p>
       </header>
 
-      <!-- ── Blocked Domains ── -->
       <section class="card">
         <div class="card-header">
-          <h2>Protected Domains</h2>
+          <h2 data-i18n="domains-heading"></h2>
           <div class="badge-group">
-            <span class="badge" id="domain-count" title="VPN required">0</span>
-            <span class="badge badge--reverse" id="reverse-domain-count" title="VPN blocked">0</span>
+            <span class="badge" id="domain-count" data-i18n="badge-vpn-required">0</span>
+            <span class="badge badge--reverse" id="reverse-domain-count" data-i18n="badge-vpn-blocked">0</span>
           </div>
         </div>
 
-        <p class="hint">
-          One domain per line. Subdomains are included automatically. <code>!</code> prefix inverts requirement.<br>
-          Do <strong>not</strong> add <code>ip.me</code> or <code>me</code> to this list.
-        </p>
+        <p class="hint" data-i18n="domains-hint"></p>
 
         <textarea
           id="blocked-hosts"
           rows="8"
-          placeholder="example.com&#10;example.org"
+          data-i18n="domains-placeholder"
           spellcheck="false"
           autocomplete="off"
         ></textarea>
@@ -53,33 +50,32 @@
           <input type="checkbox" id="force-incognito">
           <span class="toggle-slider"></span>
           <span class="toggle-label">
-            Force incognito mode on these sites
-            <span class="hint">Requires the <em>"Run in Private Windows"</em> permission.</span>
+            <span data-i18n="force-incognito-label"></span>
+            <span class="hint" data-i18n="force-incognito-hint"></span>
           </span>
         </label>
       </section>
 
-      <!-- ── Mode of Operation ── -->
       <section class="card">
         <div class="card-header">
-          <h2>VPN Detection Method</h2>
+          <h2 data-i18n="mode-heading"></h2>
         </div>
 
         <label class="radio-card">
           <input type="radio" id="localservice" name="modeOfOperation" value="LOCALSERVICE">
           <span class="radio-indicator"></span>
           <span class="radio-content">
-            <strong>Local service</strong>
+            <strong data-i18n="mode-local-title"></strong>
             <span class="hint">
-              Most robust. Detects VPN interface changes instantly without caching. Linux only.
+              <span data-i18n="mode-local-desc"></span>
               <span class="tooltip-wrap">
-                <span class="tooltip-trigger">Setup guide</span>
+                <span class="tooltip-trigger" data-i18n="setup-guide-trigger"></span>
                 <span class="tooltip-popup">
-                  <strong>Local Service Setup (Linux)</strong>
+                  <strong data-i18n="setup-guide-title"></strong>
 
-                  <p>1. Create the helper script:</p>
+                  <p data-i18n="setup-step-1"></p>
                   <div class="code-block">
-                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                    <button class="copy-btn" type="button" data-i18n="copy-btn-title">
                       <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -116,9 +112,9 @@ EOF
 chmod +x ~/.local/lib/vpn-check/vpn-service.sh</pre>
                   </div>
 
-                  <p>2. Create systemd user service:</p>
+                  <p data-i18n="setup-step-2"></p>
                   <div class="code-block">
-                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                    <button class="copy-btn" type="button" data-i18n="copy-btn-title">
                       <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -147,9 +143,9 @@ systemctl --user daemon-reload
 systemctl --user enable --now vpn-check.service</pre>
                   </div>
 
-                  <p>3. Install dependencies:</p>
+                  <p data-i18n="setup-step-3"></p>
                   <div class="code-block">
-                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                    <button class="copy-btn" type="button" data-i18n="copy-btn-title">
                       <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -168,9 +164,9 @@ sudo dnf install nmap iproute
 sudo pacman -S nmap iproute2</pre>
                   </div>
 
-                  <p>4. Find your VPN interface (with VPN connected):</p>
+                  <p data-i18n="setup-step-4"></p>
                   <div class="code-block">
-                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                    <button class="copy-btn" type="button" data-i18n="copy-btn-title">
                       <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -182,11 +178,11 @@ sudo pacman -S nmap iproute2</pre>
                     <pre>ip link show | grep -E "tun|wg|ppp|nordlynx|mullvad"</pre>
                   </div>
 
-                  <p class="hint">Add your interface to <code>VPN_INTERFACES</code> in the script if not listed.</p>
+                  <p class="hint" data-i18n="setup-step-4-hint"></p>
 
-                  <p>5. Test:</p>
+                  <p data-i18n="setup-step-5"></p>
                   <div class="code-block">
-                    <button class="copy-btn" type="button" title="Copy to clipboard">
+                    <button class="copy-btn" type="button" data-i18n="copy-btn-title">
                       <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -198,7 +194,7 @@ sudo pacman -S nmap iproute2</pre>
                     <pre>curl http://localhost:4567/getvpnstatus</pre>
                   </div>
 
-                  <p class="hint">Should return <code>status=UP</code> or <code>status=DOWN</code>.</p>
+                  <p class="hint" data-i18n="setup-step-5-hint"></p>
                 </span>
               </span>
             </span>
@@ -209,51 +205,47 @@ sudo pacman -S nmap iproute2</pre>
           <input type="radio" id="externalcheck" name="modeOfOperation" value="EXTERNALCHECK" checked>
           <span class="radio-indicator"></span>
           <span class="radio-content">
-            <strong>External IP check</strong>
-            <span class="hint">
-              Verifies via <code>ip.me</code> that your public IP is <em>not</em> in your home country.
-            </span>
+            <strong data-i18n="mode-external-title"></strong>
+            <span class="hint" data-i18n="mode-external-desc"></span>
             <span class="inline-field">
-              <label for="country-code">Home country code</label>
+              <label for="country-code" data-i18n="country-code-label"></label>
               <input
                 type="text"
                 id="country-code"
                 maxlength="2"
                 size="3"
-                placeholder="US"
+                data-i18n="country-code-input"
                 spellcheck="false"
                 autocomplete="off"
                 pattern="[A-Za-z]{2}"
-                title="Two-letter ISO country code, e.g. US, DE, JP"
               >
             </span>
           </span>
         </label>
       </section>
 
-      <!-- ── Debugging ── -->
       <section class="card">
         <div class="card-header">
-          <h2>Debugging</h2>
+          <h2 data-i18n="debug-heading"></h2>
         </div>
 
         <div class="radio-group-inline">
           <label class="radio-pill">
             <input type="radio" id="on" name="debugging" value="ON">
-            <span class="pill-label">On</span>
+            <span class="pill-label" data-i18n="debug-on"></span>
           </label>
           <label class="radio-pill">
             <input type="radio" id="off" name="debugging" value="OFF" checked>
-            <span class="pill-label">Off</span>
+            <span class="pill-label" data-i18n="debug-off"></span>
           </label>
         </div>
-        <p class="hint">When enabled, detailed logs are written to the browser console.</p>
-        <button id="clear-cache" class="btn">Re-check VPN now</button>
-        <p class="hint">Clears the cached VPN status and forces a fresh check.</p>
+        <p class="hint" data-i18n="debug-hint"></p>
+        <button id="clear-cache" class="btn" data-i18n="clear-cache-btn"></button>
+        <p class="hint" data-i18n="clear-cache-hint"></p>
       </section>
 
       <footer>
-        <p>* Settings are saved automatically.</p>
+        <p data-i18n="footer-note"></p>
       </footer>
 
     </div>

@@ -119,3 +119,39 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
 document.querySelector("#clear-cache")?.addEventListener("click", () => {
   browser.runtime.sendMessage({ action: "clearVpnCache" });
 });
+
+/* ── i18n: Auto-detect browser language ── */
+/* ── i18n: detect browser language, set <html lang> ── */
+(function() {
+  const SUPPORTED = ["en", "de", "ja"];
+  const DEFAULT   = "en";
+
+  const candidates = navigator.languages || [navigator.language || DEFAULT];
+  for (const tag of candidates) {
+    const base = tag.split("-")[0].toLowerCase();
+    if (SUPPORTED.includes(base)) {
+      document.documentElement.lang = base;
+      break;
+    }
+  }
+})();
+
+
+/* ── i18n: bridge attributes CSS can't set ── */
+document.addEventListener("DOMContentLoaded", () => {
+  const s = k => getComputedStyle(document.documentElement)
+    .getPropertyValue(k).trim().replace(/^["']|["']$/g, "");
+
+  const title = s("--i18n-page-title");
+  if (title) document.title = title;
+
+  // Badge tooltips
+  const req = s("--i18n-badge-vpn-required");
+  const blk = s("--i18n-badge-vpn-blocked");
+  if (req) document.getElementById("domain-count").title = req;
+  if (blk) document.getElementById("reverse-domain-count").title = blk;
+
+  // Copy buttons
+  const copyTitle = s("--i18n-copy-btn-title");
+  if (copyTitle) document.querySelectorAll(".copy-btn").forEach(b => b.title = copyTitle);
+});

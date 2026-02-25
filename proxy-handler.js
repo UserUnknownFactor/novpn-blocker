@@ -4,22 +4,42 @@ let countryCode = 'US';
 let forceIncognito = true;
 let modeOfOperation = 'externalcheck';
 let debugging = false;
+const IP_ENDPOINT = 'https://ipinfo.io/json';
 
 // ─── Constants ───────────────────────────────────────────────────
 const LOCAL_SERVICE_HOST = 'localhost';
 const LOCAL_SERVICE_PORT = '4567';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-const BLOCK_PROXY = { type: "http", host: "0.0.0.0", port: 65535 };
 const DIRECT_CONN = { type: "direct" };
 
-const FORCE_DIRECT_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
-const SELF_USE_HOSTS = new Set(['ip.me']);
+const FORCE_DIRECT_HOSTS = new Set(['localhost', '0.0.0.0', '127.0.0.1', '::1']);
 
 let vpnCheckCache = { vpnUp: null, timestamp: 0 };
 const processedTabs = new Set();
 
 // ─── Initialisation ──────────────────────────────────────────────
+
+async function loadSettings() {
+  try {
+    const data = await browser.storage.local.get([
+      'blockedHosts',
+      'countryCode',
+      'forceIncognito',
+      'modeOfOperation',
+      'debugging',
+    ]);
+    if (data.blockedHosts !== undefined)    blockedHosts    = data.blockedHosts;
+    if (data.countryCode !== undefined)     countryCode     = data.countryCode;
+    if (data.forceIncognito !== undefined)  forceIncognito  = data.forceIncognito;
+    if (data.modeOfOperation !== undefined) modeOfOperation = data.modeOfOperation;
+    if (data.debugging !== undefined)       debugging       = data.debugging;
+
+    if (debugging) console.log('Settings loaded:', data);
+  } catch (err) {
+    console.error('Failed to load settings:', err);
+  }
+}
 
 browser.runtime.onInstalled.addListener(() => {
   browser.storage.local.set({
@@ -31,24 +51,8 @@ browser.runtime.onInstalled.addListener(() => {
   });
 });
 
-(async () => {
-  try {
-    const data = await browser.storage.local.get({
-      blockedHosts,
-      countryCode,
-      forceIncognito,
-      modeOfOperation,
-      debugging,
-    });
-    blockedHosts    = data.blockedHosts;
-    countryCode     = data.countryCode;
-    forceIncognito  = data.forceIncognito;
-    modeOfOperation = data.modeOfOperation;
-    debugging       = data.debugging;
-  } catch (err) {
-    console.error('Failed to load settings:', err);
-  }
-})();
+// Load settings when ready
+loadSettings();
 
 browser.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local') return;
@@ -147,23 +151,17 @@ async function checkVPNviaExternalIP() {
   }
 
   try {
-    const res  = await fetch('https://ip.me/', { headers: { 'Accept': 'text/html' } });
-    const html = (await res.text()).replace(/\s+/g, '');
+    const res = await fetch(IP_ENDPOINT);
+    const data = await res.json();
 
-    const sameCountryMarker   = `<tr><th>CountryCode:</th><td><code>${countryCode.toUpperCase()}</code></td></tr>`;
-    const validResponseMarker = '<tr><th>CountryCode:</th><td><code>';
-
-    let vpnUp;
-    if (html.includes(sameCountryMarker)) {
-      vpnUp = false;
-      if (debugging) console.log('External check: same country → VPN appears DOWN');
-    } else if (html.includes(validResponseMarker)) {
-      vpnUp = true;
-      if (debugging) console.log('External check: different country → VPN appears UP');
-    } else {
-      vpnUp = false;
-      if (debugging) console.log('External check: unexpected response → failing closed');
+    if (!data || !data.country) {
+      if (debugging) console.log('External check: no response or missing country — failing closed');
+      return false;
     }
+
+    const vpnUp = data.country.toUpperCase() !== countryCode.toUpperCase();
+
+    if (debugging) console.log(`External check: country=${data.country}, home=${countryCode}, vpnUp=${vpnUp}`);
 
     vpnCheckCache = { vpnUp, timestamp: now };
     return vpnUp;
@@ -187,15 +185,9 @@ async function isVPNActive() {
 
 // ─── Tab-based VPN Cache Invalidation ────────────────────────────
 
-/**
- * Clear VPN cache when navigating to a processed domain.
- * onBeforeNavigate fires BEFORE proxy.onRequest, so the proxy
- * handler always sees a freshly cleared cache for the new page.
- */
 browser.webNavigation.onBeforeNavigate.addListener((details) => {
   if (details.frameId !== 0) return;
 
-  // Reset flag from previous navigation in this tab
   processedTabs.delete(details.tabId);
 
   try {
@@ -209,56 +201,67 @@ browser.webNavigation.onBeforeNavigate.addListener((details) => {
   } catch { /* ignore about:, moz-extension:, etc. */ }
 });
 
-/**
- * Clean up tracking when a tab is closed.
- */
 browser.tabs.onRemoved.addListener((tabId) => {
   processedTabs.delete(tabId);
 });
 
+// ─── Request Blocking (webRequest) ───────────────────────────────
+
+browser.webRequest.onBeforeRequest.addListener(
+  (details) => {
+    let hostname;
+    try {
+      hostname = new URL(details.url).hostname.toLowerCase().trim();
+    } catch {
+      return {};
+    }
+
+    if (FORCE_DIRECT_HOSTS.has(hostname)) return {};
+
+    const { matched, reversed } = matchHost(hostname);
+    if (!matched) return {};
+
+    if (!reversed && forceIncognito && !details.incognito) {
+      deleteHistoryForHost(hostname);
+      if (debugging) console.log(`[webRequest] Blocked ${hostname}: not in incognito mode`);
+      return { cancel: true };
+    }
+
+    return isVPNActive().then(vpnUp => {
+      if (reversed) {
+        if (vpnUp) {
+          if (debugging) console.log(`[webRequest] Blocked ${hostname}: VPN is active (reverse rule)`);
+          return { cancel: true };
+        }
+        if (debugging) console.log(`[webRequest] Allowing ${hostname}: VPN is not active (reverse rule)`);
+        return {};
+      } else {
+        if (!vpnUp) {
+          if (debugging) console.log(`[webRequest] Blocked ${hostname}: VPN is not active`);
+          return { cancel: true };
+        }
+        if (debugging) console.log(`[webRequest] Allowing ${hostname}: VPN is active`);
+        return {};
+      }
+    });
+  },
+  { urls: ["<all_urls>"] },
+  ["blocking"]
+);
+
 // ─── Proxy Request Handler ───────────────────────────────────────
 
-async function handleProxyRequest(requestInfo) {
+/*async function handleProxyRequest(requestInfo) {
   const url      = new URL(requestInfo.url);
   const hostname = url.hostname.toLowerCase().trim();
 
-  //if (debugging) console.log(`Proxy request: ${requestInfo.url}`);
-
   if (FORCE_DIRECT_HOSTS.has(hostname)) return DIRECT_CONN;
 
-  if (SELF_USE_HOSTS.has(hostname)) return DIRECT_CONN;
-
-  const { matched, reversed } = matchHost(hostname);
-
-  // Not in our list: let VPN/extension handle it
-  if (!matched) return undefined;
-
-  if (!reversed && forceIncognito && !requestInfo.incognito) {
-    deleteHistoryForHost(hostname);
-    if (debugging) console.log(`Blocked ${hostname}: not in incognito mode`);
-    return BLOCK_PROXY;
-  }
-
-  const vpnUp = await isVPNActive();
-
-  if (reversed) {
-    if (vpnUp) {
-      if (debugging) console.log(`Blocking ${hostname}: VPN is active (reverse rule)`);
-      return BLOCK_PROXY;
-    }
-    if (debugging) console.log(`Allowing ${hostname}: VPN is not active (reverse rule)`);
-    return undefined;
-  } else {
-    if (vpnUp) {
-      if (debugging) console.log(`Allowing ${hostname}: VPN is active`);
-      return undefined;
-    }
-    if (debugging) console.log(`Blocking ${hostname}: VPN is not active`);
-    return BLOCK_PROXY;
-  }
+  return undefined;
 }
 
 browser.proxy.onRequest.addListener(handleProxyRequest, { urls: ["<all_urls>"] });
+*/
 
 browser.runtime.onMessage.addListener((message) => {
   if (message.action === "clearVpnCache") {

@@ -1,0 +1,106 @@
+/* ============================================================
+   options.i18n.css
+   All translations in one file using :lang() selectors.
+   Only the <html lang="xx"> attribute controls the language.
+   ============================================================ */
+
+/* ── English (default) ── */
+
+:lang(en) [data-i18n="header-title"]::before         { content: "VPN Privacy Guard"; }
+:lang(en) [data-i18n="header-subtitle"]::before      { content: "Block sites unless your VPN is active"; }
+:lang(en) [data-i18n="domains-heading"]::before      { content: "Protected Domains"; }
+:lang(en) [data-i18n="domains-hint"]::before         { content: "One domain per line. Subdomains are included automatically. ! prefix inverts requirement. Do not add ipinfo.io or io to this list."; }
+:lang(en) [data-i18n="force-incognito-label"]::before { content: "Force incognito mode on these sites"; }
+:lang(en) [data-i18n="force-incognito-hint"]::before  { content: "Requires the \201CRun in Private Windows\201D permission."; }
+:lang(en) [data-i18n="mode-heading"]::before         { content: "VPN Detection Method"; }
+:lang(en) [data-i18n="mode-local-title"]::before     { content: "Local service"; }
+:lang(en) [data-i18n="mode-local-desc"]::before      { content: "Most robust. Detects VPN interface changes instantly without caching. Linux only."; }
+:lang(en) [data-i18n="setup-guide-trigger"]::before  { content: "Setup guide"; }
+:lang(en) [data-i18n="setup-guide-title"]::before    { content: "Local Service Setup (Linux)"; }
+:lang(en) [data-i18n="setup-step-1"]::before         { content: "1. Create the helper script:"; }
+:lang(en) [data-i18n="setup-step-2"]::before         { content: "2. Create systemd user service:"; }
+:lang(en) [data-i18n="setup-step-3"]::before         { content: "3. Install dependencies:"; }
+:lang(en) [data-i18n="setup-step-4"]::before         { content: "4. Find your VPN interface (with VPN connected):"; }
+:lang(en) [data-i18n="setup-step-4-hint"]::before    { content: "Add your interface to VPN_INTERFACES in the script if not listed."; }
+:lang(en) [data-i18n="setup-step-5"]::before         { content: "5. Test:"; }
+:lang(en) [data-i18n="setup-step-5-hint"]::before    { content: "Should return status=UP or status=DOWN."; }
+:lang(en) [data-i18n="mode-external-title"]::before  { content: "External IP check"; }
+:lang(en) [data-i18n="mode-external-desc"]::before   { content: "Verifies via ipinfo.io that your public IP is not in your home country."; }
+:lang(en) [data-i18n="country-code-label"]::before   { content: "Home country code"; }
+:lang(en) [data-i18n="debug-heading"]::before        { content: "Debugging"; }
+:lang(en) [data-i18n="debug-on"]::before             { content: "ON"; }
+:lang(en) [data-i18n="debug-off"]::before            { content: "OFF"; }
+:lang(en) [data-i18n="debug-hint"]::before           { content: "When enabled, detailed logs are written to the browser console."; }
+:lang(en) [data-i18n="clear-cache-btn"]::before      { content: "Re-check VPN now"; }
+:lang(en) [data-i18n="clear-cache-hint"]::before     { content: "Clears the cached VPN status and forces a fresh check."; }
+:lang(en) [data-i18n="footer-note"]::before          { content: "* Settings are saved automatically."; }
+
+
+/* ── German ── */
+
+:lang(de) [data-i18n="header-title"]::before         { content: "VPN Datenschutzwächter"; }
+:lang(de) [data-i18n="header-subtitle"]::before      { content: "Websites blockieren, wenn kein VPN aktiv ist"; }
+:lang(de) [data-i18n="domains-heading"]::before      { content: "Geschützte Domains"; }
+:lang(de) [data-i18n="domains-hint"]::before         { content: "Eine Domain pro Zeile. Subdomains werden automatisch eingeschlossen. ! kehrt die Anforderung um. Fügen Sie ipinfo.io oder io nicht hinzu."; }
+:lang(de) [data-i18n="force-incognito-label"]::before { content: "Privaten Modus auf diesen Seiten erzwingen"; }
+:lang(de) [data-i18n="force-incognito-hint"]::before  { content: "Erfordert die Berechtigung \201EIn privaten Fenstern ausführen\201C."; }
+:lang(de) [data-i18n="mode-heading"]::before         { content: "VPN-Erkennungsmethode"; }
+:lang(de) [data-i18n="mode-local-title"]::before     { content: "Lokaler Dienst"; }
+:lang(de) [data-i18n="mode-local-desc"]::before      { content: "Am robustesten. Erkennt VPN-Schnittstellenänderungen sofort ohne Cache. Nur Linux."; }
+:lang(de) [data-i18n="setup-guide-trigger"]::before  { content: "Einrichtungsanleitung"; }
+:lang(de) [data-i18n="setup-guide-title"]::before    { content: "Lokaler Dienst einrichten (Linux)"; }
+:lang(de) [data-i18n="setup-step-1"]::before         { content: "1. Hilfsskript erstellen:"; }
+:lang(de) [data-i18n="setup-step-2"]::before         { content: "2. Systemd-Benutzerdienst erstellen:"; }
+:lang(de) [data-i18n="setup-step-3"]::before         { content: "3. Abhängigkeiten installieren:"; }
+:lang(de) [data-i18n="setup-step-4"]::before         { content: "4. VPN-Schnittstelle finden (bei verbundenem VPN):"; }
+:lang(de) [data-i18n="setup-step-4-hint"]::before    { content: "Fügen Sie Ihre Schnittstelle zu VPN_INTERFACES im Skript hinzu, falls nicht aufgeführt."; }
+:lang(de) [data-i18n="setup-step-5"]::before         { content: "5. Testen:"; }
+:lang(de) [data-i18n="setup-step-5-hint"]::before    { content: "Sollte status=UP oder status=DOWN zurückgeben."; }
+:lang(de) [data-i18n="mode-external-title"]::before  { content: "Externe IP-Prüfung"; }
+:lang(de) [data-i18n="mode-external-desc"]::before   { content: "Überprüft über ipinfo.io, ob Ihre öffentliche IP nicht in Ihrem Heimatland liegt."; }
+:lang(de) [data-i18n="country-code-label"]::before   { content: "Ländercode Heimatland"; }
+:lang(de) [data-i18n="debug-heading"]::before        { content: "Fehlerbehebung"; }
+:lang(de) [data-i18n="debug-on"]::before             { content: "AN"; }
+:lang(de) [data-i18n="debug-off"]::before            { content: "AUS"; }
+:lang(de) [data-i18n="debug-hint"]::before           { content: "Wenn aktiviert, werden detaillierte Logs in die Browserkonsole geschrieben."; }
+:lang(de) [data-i18n="clear-cache-btn"]::before      { content: "VPN jetzt erneut prüfen"; }
+:lang(de) [data-i18n="clear-cache-hint"]::before     { content: "Löscht den zwischengespeicherten VPN-Status und erzwingt eine neue Prüfung."; }
+:lang(de) [data-i18n="footer-note"]::before          { content: "* Einstellungen werden automatisch gespeichert."; }
+
+
+/* ── Japanese ── */
+
+:lang(ja) [data-i18n="header-title"]::before         { content: "VPN プライバシーガード"; }
+:lang(ja) [data-i18n="header-subtitle"]::before      { content: "VPN が無効な場合にサイトをブロック"; }
+:lang(ja) [data-i18n="domains-heading"]::before      { content: "保護されたドメイン"; }
+:lang(ja) [data-i18n="domains-hint"]::before         { content: "1行に1ドメイン。サブドメインは自動的に含まれます。! を先頭に付けると条件が反転します。ipinfo.io や io を追加しないでください。"; }
+:lang(ja) [data-i18n="force-incognito-label"]::before { content: "これらのサイトでシークレットモードを強制する"; }
+:lang(ja) [data-i18n="force-incognito-hint"]::before  { content: "\201Cプライベートウィンドウでの実行\201D の許可が必要です。"; }
+:lang(ja) [data-i18n="mode-heading"]::before         { content: "VPN 検出方法"; }
+:lang(ja) [data-i18n="mode-local-title"]::before     { content: "ローカルサービス"; }
+:lang(ja) [data-i18n="mode-local-desc"]::before      { content: "最も堅牢。キャッシュなしでVPNインターフェースの変更を即座に検出。Linux のみ。"; }
+:lang(ja) [data-i18n="setup-guide-trigger"]::before  { content: "セットアップガイド"; }
+:lang(ja) [data-i18n="setup-guide-title"]::before    { content: "ローカルサービスのセットアップ（Linux）"; }
+:lang(ja) [data-i18n="setup-step-1"]::before         { content: "1. ヘルパースクリプトを作成："; }
+:lang(ja) [data-i18n="setup-step-2"]::before         { content: "2. systemd ユーザーサービスを作成："; }
+:lang(ja) [data-i18n="setup-step-3"]::before         { content: "3. 依存関係をインストール："; }
+:lang(ja) [data-i18n="setup-step-4"]::before         { content: "4. VPN インターフェースを確認（VPN 接続中）："; }
+:lang(ja) [data-i18n="setup-step-4-hint"]::before    { content: "リストにない場合はスクリプトの VPN_INTERFACES にインターフェースを追加してください。"; }
+:lang(ja) [data-i18n="setup-step-5"]::before         { content: "5. テスト："; }
+:lang(ja) [data-i18n="setup-step-5-hint"]::before    { content: "status=UP または status=DOWN が返されるはずです。"; }
+:lang(ja) [data-i18n="mode-external-title"]::before  { content: "外部 IP チェック"; }
+:lang(ja) [data-i18n="mode-external-desc"]::before   { content: "ipinfo.io を使用して、パブリック IP が自国にないことを確認します。"; }
+:lang(ja) [data-i18n="country-code-label"]::before   { content: "自国の国コード"; }
+:lang(ja) [data-i18n="debug-heading"]::before        { content: "デバッグ"; }
+:lang(ja) [data-i18n="debug-on"]::before             { content: "オン"; }
+:lang(ja) [data-i18n="debug-off"]::before            { content: "オフ"; }
+:lang(ja) [data-i18n="debug-hint"]::before           { content: "有効にすると、詳細なログがブラウザコンソールに出力されます。"; }
+:lang(ja) [data-i18n="clear-cache-btn"]::before      { content: "今すぐ VPN を再確認"; }
+:lang(ja) [data-i18n="clear-cache-hint"]::before     { content: "キャッシュされた VPN ステータスをクリアし、新しいチェックを強制します。"; }
+:lang(ja) [data-i18n="footer-note"]::before          { content: "※ 設定は自動的に保存されます。"; }
+
+/* ── Attribute strings (read by JS) ── */
+
+:lang(en) { --i18n-page-title: "VPN Privacy Guard — Settings";       --i18n-domains-placeholder: "example.com\aexample.org"; --i18n-badge-vpn-required: "VPN required"; --i18n-badge-vpn-blocked: "VPN blocked"; --i18n-copy-btn-title: "Copy to clipboard"; --i18n-country-code-placeholder: "US"; --i18n-country-code-title: "Two-letter ISO country code, e.g. US, DE, JP"; }
+:lang(de) { --i18n-page-title: "VPN Datenschutzwächter — Einstellungen"; --i18n-domains-placeholder: "beispiel.de\abeispiel.org"; --i18n-badge-vpn-required: "VPN erforderlich"; --i18n-badge-vpn-blocked: "VPN blockiert"; --i18n-copy-btn-title: "In die Zwischenablage kopieren"; --i18n-country-code-placeholder: "DE"; --i18n-country-code-title: "Zwei-Buchstaben-ISO-Ländercode, z.B. DE, US, JP"; }
+:lang(ja) { --i18n-page-title: "VPN プライバシーガード — 設定";          --i18n-domains-placeholder: "example.com\aexample.org"; --i18n-badge-vpn-required: "VPN 必須"; --i18n-badge-vpn-blocked: "VPN ブロック"; --i18n-copy-btn-title: "クリップボードにコピー"; --i18n-country-code-placeholder: "JP"; --i18n-country-code-title: "2文字のISO国コード（例：JP、US、DE）"; }
