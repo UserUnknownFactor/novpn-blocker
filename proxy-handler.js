@@ -4,18 +4,22 @@ let countryCode = 'US';
 let forceIncognito = true;
 let modeOfOperation = 'externalcheck';
 let debugging = false;
-const IP_ENDPOINT = 'https://ipinfo.io/json';
 
 // ─── Constants ───────────────────────────────────────────────────
 const LOCAL_SERVICE_HOST = 'localhost';
 const LOCAL_SERVICE_PORT = '4567';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+const IP_PRIMARY  = 'https://ipinfo.io/json';
+const IP_FALLBACK = 'https://ip.me/';
+
 const DIRECT_CONN = { type: "direct" };
 
 const FORCE_DIRECT_HOSTS = new Set(['localhost', '0.0.0.0', '127.0.0.1', '::1']);
 
+// vpnUp: true = up, false = down, null = unknown/not cached
 let vpnCheckCache = { vpnUp: null, timestamp: 0 };
+let vpnCheckPromise = null;
 const processedTabs = new Set();
 
 // ─── Initialisation ──────────────────────────────────────────────
@@ -124,53 +128,130 @@ browser.history.onVisited.addListener(async (historyItem) => {
 
 function clearVpnCache(reason) {
   vpnCheckCache = { vpnUp: null, timestamp: 0 };
+  vpnCheckPromise = null;
   if (debugging) console.log(`VPN cache cleared: ${reason}`);
 }
 
-async function checkVPNviaLocalService() {
-  try {
-    const res  = await fetch(`http://${LOCAL_SERVICE_HOST}:${LOCAL_SERVICE_PORT}/getvpnstatus`);
-    const body = await res.text();
-    if (debugging) console.log(`Local-service response: ${body}`);
-    return body.includes('status=UP');
-  } catch (err) {
-    if (debugging) {
-      console.error(`Local-service check failed: ${err.message}`);
-      console.error(`Is the service running at http://${LOCAL_SERVICE_HOST}:${LOCAL_SERVICE_PORT} ?`);
-    }
-    return false;
-  }
-}
-
-async function checkVPNviaExternalIP() {
+function getCachedResult() {
   const now = Date.now();
-
-  if (vpnCheckCache.vpnUp !== null && (now - vpnCheckCache.timestamp) < CACHE_TTL_MS) {
+  if ((now - vpnCheckCache.timestamp) < CACHE_TTL_MS && vpnCheckCache.timestamp > 0) {
     if (debugging) console.log(`Cached VPN-check result: vpnUp=${vpnCheckCache.vpnUp}`);
-    return vpnCheckCache.vpnUp;
+    return { hit: true, value: vpnCheckCache.vpnUp };
+  }
+  return { hit: false };
+}
+
+// ─── Primary: ipinfo.io (JSON) ───────────────────────────────────
+
+async function fetchVPNviaPrimary() {
+  const res  = await fetch(IP_PRIMARY);
+  const data = await res.json();
+
+  if (!data || !data.country) {
+    if (debugging) console.log('Primary check: missing country field');
+    return null;
   }
 
-  try {
-    const res = await fetch(IP_ENDPOINT);
-    const data = await res.json();
+  const vpnUp = data.country.toUpperCase() !== countryCode.toUpperCase();
+  if (debugging) console.log(`Primary check: country=${data.country}, home=${countryCode}, vpnUp=${vpnUp}`);
+  return vpnUp;
+}
 
-    if (!data || !data.country) {
-      if (debugging) console.log('External check: no response or missing country — failing closed');
-      return false;
+// ─── Fallback: ip.me (HTML) ──────────────────────────────────────
+
+async function fetchVPNviaFallback() {
+  const res  = await fetch(IP_FALLBACK, { headers: { 'Accept': 'text/html' } });
+  const html = (await res.text()).replace(/\s+/g, '');
+
+  const sameCountryMarker   = `<tr><th>CountryCode:</th><td><code>${countryCode.toUpperCase()}</code></td></tr>`;
+  const validResponseMarker = '<tr><th>CountryCode:</th><td><code>';
+
+  if (html.includes(sameCountryMarker)) {
+    if (debugging) console.log('Fallback check: same country → VPN appears DOWN');
+    return false;
+  } else if (html.includes(validResponseMarker)) {
+    if (debugging) console.log('Fallback check: different country → VPN appears UP');
+    return true;
+  }
+
+  if (debugging) console.log('Fallback check: unexpected response → unknown');
+  return null;
+}
+
+// ─── External Check: Primary + Fallback ──────────────────────────
+
+// Returns: true = VPN up, false = VPN down, null = unknown/error
+async function checkVPNviaExternalIP() {
+  const cached = getCachedResult();
+  if (cached.hit) return cached.value;
+
+  if (vpnCheckPromise) return vpnCheckPromise;
+
+  vpnCheckPromise = (async () => {
+    let vpnUp = null;
+
+    try {
+      vpnUp = await fetchVPNviaPrimary();
+    } catch (err) {
+      if (debugging) console.error(`Primary (ipinfo.io) IP check failed: ${err.message}`);
+    }
+    if (vpnUp === null) {
+      try {
+        if (debugging) console.log('Primary failed, trying fallback (ip.me)...');
+        vpnUp = await fetchVPNviaFallback();
+      } catch (err) {
+        if (debugging) console.error(`Fallback IP check failed: ${err.message}`);
+      }
     }
 
-    const vpnUp = data.country.toUpperCase() !== countryCode.toUpperCase();
-
-    if (debugging) console.log(`External check: country=${data.country}, home=${countryCode}, vpnUp=${vpnUp}`);
-
-    vpnCheckCache = { vpnUp, timestamp: now };
+    vpnCheckCache = { vpnUp, timestamp: Date.now() };
     return vpnUp;
-  } catch (err) {
-    if (debugging) console.error(`External IP check failed: ${err.message}`);
-    return false;
+  })();
+
+  try {
+    return await vpnCheckPromise;
+  } finally {
+    vpnCheckPromise = null;
   }
 }
 
+// ─── Local Service Check ─────────────────────────────────────────
+
+// Returns: true = VPN up, false = VPN down, null = unknown/error
+async function checkVPNviaLocalService() {
+  const cached = getCachedResult();
+  if (cached.hit) return cached.value;
+
+  if (vpnCheckPromise) return vpnCheckPromise;
+
+  vpnCheckPromise = (async () => {
+    try {
+      const res  = await fetch(`http://${LOCAL_SERVICE_HOST}:${LOCAL_SERVICE_PORT}/getvpnstatus`);
+      const body = await res.text();
+      if (debugging) console.log(`Local-service response: ${body}`);
+      const vpnUp = body.includes('status=UP');
+      vpnCheckCache = { vpnUp, timestamp: Date.now() };
+      return vpnUp;
+    } catch (err) {
+      if (debugging) {
+        console.error(`Local-service check failed: ${err.message}`);
+        console.error(`Is the service running at http://${LOCAL_SERVICE_HOST}:${LOCAL_SERVICE_PORT} ?`);
+      }
+      vpnCheckCache = { vpnUp: null, timestamp: Date.now() };
+      return null;
+    }
+  })();
+
+  try {
+    return await vpnCheckPromise;
+  } finally {
+    vpnCheckPromise = null;
+  }
+}
+
+// ─── VPN Status Router ──────────────────────────────────────────
+
+// Returns: true = VPN up, false = VPN down, null = unknown
 async function isVPNActive() {
   switch (modeOfOperation) {
     case 'localservice':  return checkVPNviaLocalService();
@@ -179,7 +260,7 @@ async function isVPNActive() {
       console.error(
         `Invalid modeOfOperation "${modeOfOperation}"; must be "localservice" or "externalcheck".`
       );
-      return false;
+      return null;
   }
 }
 
@@ -228,6 +309,12 @@ browser.webRequest.onBeforeRequest.addListener(
     }
 
     return isVPNActive().then(vpnUp => {
+      // null = unknown — block everything to be safe
+      if (vpnUp === null) {
+        if (debugging) console.log(`[webRequest] Blocked ${hostname}: VPN status unknown (failing closed)`);
+        return { cancel: true };
+      }
+
       if (reversed) {
         if (vpnUp) {
           if (debugging) console.log(`[webRequest] Blocked ${hostname}: VPN is active (reverse rule)`);
